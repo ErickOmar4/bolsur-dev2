@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Pedido - Bolsur</title>
+    <meta name="description" content="Sistema de gestión de pedidos Bolsur">
+    
+    <!-- Estilos CSS separados -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Lucide Icons CDN para iconos -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <!-- ================================ -->
+    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- ================================ -->
+    <div class="app-container">
+        
+        <!-- ================================ -->
+        <!-- SIDEBAR / MENÚ LATERAL -->
+        <!-- ================================ -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Logo y nombre de la empresa -->
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <i data-lucide="package"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-title">Bolsur</span>
+                        <span class="logo-subtitle">Gestión de Pedidos</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navegación principal -->
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <i data-lucide="clipboard-list"></i>
+                    <span>Pedidos</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i data-lucide="package"></i>
+                    <span>Inventario</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span>Reportes</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i data-lucide="settings"></i>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- ================================ -->
+        <!-- CONTENIDO PRINCIPAL -->
+        <!-- ================================ -->
+        <main class="main-content">
+            
+            <!-- Header superior -->
+            <header class="top-header">
+                <div class="header-left">
+                    <!-- Botón para mostrar/ocultar sidebar en móvil -->
+                    <button class="menu-toggle" id="menuToggle">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <h2 class="page-title">Detalle del Pedido</h2>
+                </div>
+                <div class="header-right">
+                    <!-- Campana de notificaciones -->
+                    <button class="notification-btn">
+                        <i data-lucide="bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Área de contenido -->
+            <div class="content-area">
+                
+                <!-- ================================ -->
+                <!-- ENCABEZADO DEL PEDIDO -->
+                <!-- ================================ -->
+                <div class="order-header">
+                    <div class="order-header-info">
+                        <!-- Botón regresar -->
+                        <a href="#" class="back-button">
+                            <i data-lucide="arrow-left"></i>
+                        </a>
+                        <div>
+                            <h1 class="order-number">Pedido #PED-2024-003</h1>
+                            <p class="order-date">Creado el 15 de enero, 2024</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Acciones del pedido -->
+                    <div class="order-actions">
+                        <button class="btn btn-outline">
+                            <i data-lucide="printer"></i>
+                            <span>Imprimir</span>
+                        </button>
+                        <button class="btn btn-outline">
+                            <i data-lucide="mail"></i>
+                            <span>Enviar</span>
+                        </button>
+                        <button class="btn btn-primary">
+                            <i data-lucide="edit-3"></i>
+                            <span>Editar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ================================ -->
+                <!-- GRID PRINCIPAL DE INFORMACIÓN -->
+                <!-- ================================ -->
+                <div class="order-grid">
+                    
+                    <!-- Columna izquierda -->
+                    <div class="order-main">
+                        
+                        <!-- Tarjeta de estado y progreso -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Estado del Pedido</h3>
+                                <!-- Badge de estado -->
+                                <span class="status-badge status-in-progress">
+                                    <i data-lucide="loader-2" class="spin"></i>
+                                    En Proceso
+                                </span>
+                            </div>
+                            <div class="card-content">
+                                <!-- Timeline de progreso -->
+                                <div class="progress-timeline">
+                                    <!-- Paso 1: Completado -->
+                                    <div class="timeline-step completed">
+                                        <div class="step-indicator">
+                                            <i data-lucide="check"></i>
+                                        </div>
+                                        <div class="step-content">
+                                            <span class="step-title">Pendiente</span>
+                                            <span class="step-date">15 Ene, 10:30</span>
+                                        </div>
+                                    </div>
+                                    <!-- Paso 2: Activo -->
+                                    <div class="timeline-step active">
+                                        <div class="step-indicator">
+                                            <span>2</span>
+                                        </div>
+                                        <div class="step-content">
+                                            <span class="step-title">En Proceso</span>
+                                            <span class="step-date">16 Ene, 09:00</span>
+                                        </div>
+                                    </div>
+                                    <!-- Paso 3: Pendiente -->
+                                    <div class="timeline-step">
+                                        <div class="step-indicator">
+                                            <span>3</span>
+                                        </div>
+                                        <div class="step-content">
+                                            <span class="step-title">Terminado</span>
+                                            <span class="step-date">-</span>
+                                        </div>
+                                    </div>
+                                    <!-- Paso 4: Pendiente -->
+                                    <div class="timeline-step">
+                                        <div class="step-indicator">
+                                            <span>4</span>
+                                        </div>
+                                        <div class="step-content">
+                                            <span class="step-title">Entregado</span>
+                                            <span class="step-date">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Selector de cambio de estado -->
+                                <div class="status-change">
+                                    <label for="statusSelect">Cambiar estado:</label>
+                                    <select id="statusSelect" class="select-input">
+                                        <option value="pending">Pendiente</option>
+                                        <option value="in-progress" selected>En Proceso</option>
+                                        <option value="finished">Terminado</option>
+                                        <option value="delivered">Entregado</option>
+                                    </select>
+                                    <button class="btn btn-primary btn-sm" id="updateStatusBtn">
+                                        Actualizar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta de productos/items del pedido -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Productos del Pedido</h3>
+                            </div>
+                            <div class="card-content">
+                                <!-- Tabla de productos -->
+                                <table class="products-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Servicio</th>
+                                            <th>Cantidad</th>
+                                            <th>Precio Unit.</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="product-info">
+                                                    <span class="product-name">Bolsa Kraft Grande</span>
+                                                    <span class="product-specs">40 x 50 cm</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="service-badge service-print">
+                                                    Impresión a Color
+                                                </span>
+                                            </td>
+                                            <td>500</td>
+                                            <td>$3.50</td>
+                                            <td class="text-bold">$1,750.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="product-info">
+                                                    <span class="product-name">Bolsa Kraft Mediana</span>
+                                                    <span class="product-specs">30 x 40 cm</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="service-badge service-sale">
+                                                    Venta Directa
+                                                </span>
+                                            </td>
+                                            <td>200</td>
+                                            <td>$2.80</td>
+                                            <td class="text-bold">$560.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Resumen de totales -->
+                                <div class="order-totals">
+                                    <div class="total-row">
+                                        <span>Subtotal</span>
+                                        <span>$2,310.00</span>
+                                    </div>
+                                    <div class="total-row">
+                                        <span>IVA (16%)</span>
+                                        <span>$369.60</span>
+                                    </div>
+                                    <div class="total-row total-final">
+                                        <span>Total</span>
+                                        <span>$2,679.60</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notas del pedido -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Notas</h3>
+                            </div>
+                            <div class="card-content">
+                                <p class="notes-text">
+                                    Cliente requiere impresión a una tinta en color azul marino. 
+                                    Entregar antes de las 2:00 PM del día de entrega.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna derecha (sidebar) -->
+                    <div class="order-sidebar">
+                        
+                        <!-- Información del cliente -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i data-lucide="user"></i>
+                                    Cliente
+                                </h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="client-info">
+                                    <p class="client-name">Restaurante El Sabor</p>
+                                    <div class="client-detail">
+                                        <i data-lucide="phone"></i>
+                                        <span>555-123-4567</span>
+                                    </div>
+                                    <div class="client-detail">
+                                        <i data-lucide="mail"></i>
+                                        <span>contacto@elsabor.com</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fechas importantes -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i data-lucide="calendar"></i>
+                                    Fechas
+                                </h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="dates-info">
+                                    <div class="date-item">
+                                        <span class="date-label">Creación</span>
+                                        <span class="date-value">15 Ene 2024</span>
+                                    </div>
+                                    <div class="date-item date-urgent">
+                                        <span class="date-label">Entrega</span>
+                                        <span class="date-value">
+                                            <i data-lucide="alert-triangle"></i>
+                                            18 Ene 2024
+                                        </span>
+                                    </div>
+                                    <div class="days-remaining">
+                                        <span class="days-count">2</span>
+                                        <span class="days-text">días restantes</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Responsables -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i data-lucide="users"></i>
+                                    Responsables
+                                </h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="responsible-info">
+                                    <div class="responsible-item">
+                                        <span class="responsible-label">Creado por</span>
+                                        <div class="responsible-person">
+                                            <div class="avatar">MG</div>
+                                            <span>María García</span>
+                                        </div>
+                                    </div>
+                                    <div class="responsible-item">
+                                        <span class="responsible-label">Asignado a</span>
+                                        <div class="responsible-person">
+                                            <div class="avatar">JL</div>
+                                            <span>Juan López</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript separado -->
+    <script src="script.js"></script>
+</body>
+</html>

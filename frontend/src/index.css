@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 215 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    /* Azul Bolsur - color base principal */
+    --primary: 210 70% 38%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 15% 93%;
+    --secondary-foreground: 215 25% 15%;
+
+    --muted: 210 15% 95%;
+    --muted-foreground: 215 15% 45%;
+
+    /* Verde Bolsur - acciones positivas */
+    --accent: 152 60% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 210 70% 38%;
+
+    --radius: 0.625rem;
+
+    /* Status Colors */
+    --status-pending: 45 93% 47%;
+    --status-pending-foreground: 45 93% 15%;
+    --status-in-progress: 210 70% 50%;
+    --status-in-progress-foreground: 0 0% 100%;
+    --status-finished: 152 60% 40%;
+    --status-finished-foreground: 0 0% 100%;
+    --status-delivered: 210 25% 55%;
+    --status-delivered-foreground: 0 0% 100%;
+
+    /* Sidebar - Azul Bolsur oscuro */
+    --sidebar-background: 210 65% 15%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 152 60% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 55% 22%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 210 50% 22%;
+    --sidebar-ring: 152 60% 40%;
+
+    /* Chart colors */
+    --chart-1: 210 70% 38%;
+    --chart-2: 152 60% 40%;
+    --chart-3: 210 70% 55%;
+    --chart-4: 152 45% 55%;
+    --chart-5: 210 40% 70%;
+  }
+
+  .dark {
+    --background: 215 30% 10%;
+    --foreground: 210 20% 95%;
+
+    --card: 215 30% 14%;
+    --card-foreground: 210 20% 95%;
+
+    --popover: 215 30% 14%;
+    --popover-foreground: 210 20% 95%;
+
+    --primary: 210 70% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 30% 20%;
+    --secondary-foreground: 210 20% 95%;
+
+    --muted: 215 30% 18%;
+    --muted-foreground: 215 15% 60%;
+
+    --accent: 152 60% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 215 30% 22%;
+    --input: 215 30% 22%;
+    --ring: 210 70% 50%;
+
+    --sidebar-background: 210 60% 8%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 152 60% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 50% 15%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 210 45% 18%;
+    --sidebar-ring: 152 60% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .status-pending {
+    @apply bg-[hsl(var(--status-pending)/0.15)] text-[hsl(var(--status-pending))] border border-[hsl(var(--status-pending)/0.3)];
+  }
+  
+  .status-in-progress {
+    @apply bg-[hsl(var(--status-in-progress)/0.15)] text-[hsl(var(--status-in-progress))] border border-[hsl(var(--status-in-progress)/0.3)];
+  }
+  
+  .status-finished {
+    @apply bg-[hsl(var(--status-finished)/0.15)] text-[hsl(var(--status-finished))] border border-[hsl(var(--status-finished)/0.3)];
+  }
+  
+  .status-delivered {
+    @apply bg-[hsl(var(--status-delivered)/0.15)] text-[hsl(var(--status-delivered))] border border-[hsl(var(--status-delivered)/0.3)];
+  }
+
+  .card-stat {
+    @apply bg-card rounded-xl border p-6 shadow-sm transition-all hover:shadow-md;
+  }
+
+  .table-container {
+    @apply bg-card rounded-xl border shadow-sm overflow-hidden;
+  }
+
+  .alert-urgent {
+    @apply bg-destructive/10 border-destructive/30 text-destructive;
+  }
+
+  .alert-warning {
+    @apply bg-[hsl(var(--status-pending)/0.1)] border-[hsl(var(--status-pending)/0.3)] text-[hsl(var(--status-pending))];
+  }
+}

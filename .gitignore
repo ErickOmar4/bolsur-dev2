@@ -1,0 +1,16 @@
+# Dependencias (Pesadas y se instalan localmente)
+node_modules/
+**/node_modules/
+
+# Archivos de compilación
+dist/
+build/
+
+# Archivos de sistema basura
+.DS_Store
+Thumbs.db
+
+# Logs de errores
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
