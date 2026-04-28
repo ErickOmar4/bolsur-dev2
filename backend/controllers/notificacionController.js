@@ -16,6 +16,29 @@ export const getNotificaciones = async (req, res) => {
     }
 };
 
+// Marcar una notificación específica como leída (verificando que pertenece al usuario)
+export const marcarUnaLeida = async (req, res) => {
+    const usuario_id = req.user.id;
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            `UPDATE bolsur_dbnormal.notificaciones 
+             SET read = true 
+             WHERE id = $1 AND usuario_id = $2
+             RETURNING id`,
+            [id, usuario_id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Notificación no encontrada" });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: "Error al actualizar notificación" });
+    }
+};
+
 // Actualizar el estado de todas las notificaciones del usuario a "leídas"
 export const marcarTodasLeidas = async (req, res) => {
     const usuario_id = req.user.id;
@@ -33,24 +56,21 @@ export const marcarTodasLeidas = async (req, res) => {
 // Generar notificaciones basadas en las preferencias granulares de cada usuario
 export const crearNotificacionInterna = async (usuario_id, tipo, titulo, mensaje) => {
     try {
-        // Consulta las preferencias de notificación configuradas por el usuario
         const pref = await pool.query(
             "SELECT * FROM bolsur_dbnormal.usuario_preferencias WHERE usuario_id = $1",
             [usuario_id]
         );
-        
+
         if (pref.rows.length === 0) return;
 
         const p = pref.rows[0];
         let debeNotificar = false;
 
-        // Validación de tipos de alerta según configuración
-        if (tipo === 'overdue' && p.notif_pedidos_urgentes) debeNotificar = true;
-        if (tipo === 'low_stock' && p.notif_stock_bajo) debeNotificar = true;
-        if (tipo === 'new_order' && p.notif_nuevos_pedidos) debeNotificar = true;
-        if (tipo === 'delivered') debeNotificar = true; 
+        if (tipo === 'overdue'   && p.notif_pedidos_urgentes) debeNotificar = true;
+        if (tipo === 'low_stock' && p.notif_stock_bajo)       debeNotificar = true;
+        if (tipo === 'new_order' && p.notif_nuevos_pedidos)   debeNotificar = true;
+        if (tipo === 'delivered')                              debeNotificar = true;
 
-        // Inserción en tabla de notificaciones si la preferencia está activa
         if (debeNotificar) {
             await pool.query(
                 `INSERT INTO bolsur_dbnormal.notificaciones (usuario_id, type, title, description) 

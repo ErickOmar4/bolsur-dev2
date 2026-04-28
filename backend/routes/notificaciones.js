@@ -2,7 +2,9 @@
 import express from 'express';
 import { 
     getNotificaciones, 
-    marcarTodasLeidas 
+    marcarTodasLeidas,
+        marcarUnaLeida 
+
 } from '../controllers/notificacionController.js';
 import { verificarToken } from '../middleware/authMiddleware.js';
 
@@ -12,5 +14,8 @@ const router = express.Router();
 router.use(verificarToken);
 router.get('/', getNotificaciones);
 router.put('/read-all', marcarTodasLeidas);
+
+router.put("/:id/read", marcarUnaLeida);
+
 
 export default router;
