@@ -21,7 +21,6 @@ import { Product } from "@/types/order";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-// Definimos la interfaz para las categorías que vienen de la BD
 interface Category {
   id: number;
   nombre: string;
@@ -30,7 +29,7 @@ interface Category {
 interface EditProductModalProps {
   product: Product | null;
   open: boolean;
-  categories: Category[]; // Ahora es un array de objetos Category
+  categories: Category[];
   onClose: () => void;
   onSave: (updated: Product) => void;
 }
@@ -40,7 +39,7 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
   const [isSaving, setIsSaving] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    category_id: "", // Guardamos el ID como string para el Select de Radix/Shadcn
+    category_id: "",
     height: "",
     width: "",
     stock: "",
@@ -49,10 +48,8 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
   });
 
   useEffect(() => {
-    if (product) {
-      // Buscamos el ID de la categoría actual basándonos en el nombre que tiene el producto
-      const currentCategory = categories.find(c => c.nombre === product.category);
-      
+    if (product && open) {
+      const currentCategory = categories.find((c) => c.nombre === product.category);
       setForm({
         name: product.name,
         category_id: currentCategory?.id.toString() ?? "",
@@ -63,16 +60,15 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
         unitPrice: product.unitPrice.toString(),
       });
     }
-  }, [product, categories]);
-
-  if (!product) return null;
+  }, [product, open, categories]);
 
   const handleSave = async () => {
+    if (!product) return;
+
     if (!form.name.trim()) {
       toast.error("El nombre del producto es obligatorio");
       return;
     }
-    
     if (!form.category_id) {
       toast.error("Debes seleccionar una categoría");
       return;
@@ -82,7 +78,7 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
     try {
       const body = {
         name: form.name.trim(),
-        category_id: Number(form.category_id), // Enviamos el ID numérico
+        category_id: Number(form.category_id),
         unitPrice: Number(form.unitPrice),
         stock: Number(form.stock),
         minStock: Number(form.minStock),
@@ -99,9 +95,7 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
       const data = await response.json();
 
       if (response.ok) {
-        // Obtenemos el nombre de la categoría seleccionada para actualizar la tabla visualmente
-        const selectedCatName = categories.find(c => c.id === Number(form.category_id))?.nombre;
-
+        const selectedCatName = categories.find((c) => c.id === Number(form.category_id))?.nombre;
         const updated: Product = {
           ...product,
           name: body.name,
@@ -115,10 +109,8 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
             unit: product.dimensions?.unit ?? "cm",
           },
         };
-
         onSave(updated);
         toast.success("Producto actualizado");
-        onClose();
       } else if (response.status === 409) {
         toast.error(data.error);
       } else {
@@ -133,29 +125,30 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
   };
 
   return (
+    // FIX: ya no hay "if (!product) return null" — el modal siempre se renderiza
+    // pero open=false lo mantiene invisible. Esto evita que Radix intente
+    // desmontar su portal mientras el nodo DOM ya fue removido por React.
     <Dialog open={open} onOpenChange={(v) => !v && !isSaving && onClose()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl text-primary">
-            Editar Producto
-          </DialogTitle>
+          <DialogTitle className="text-xl text-primary">Editar Producto</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
             <Label htmlFor="edit-name">Nombre del producto</Label>
-            <Input 
-              id="edit-name" 
-              value={form.name} 
-              onChange={(e) => setForm({ ...form, name: e.target.value })} 
+            <Input
+              id="edit-name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
               disabled={isSaving}
             />
           </div>
 
           <div>
             <Label>Categoría</Label>
-            <Select 
-              value={form.category_id} 
+            <Select
+              value={form.category_id}
               onValueChange={(v) => setForm({ ...form, category_id: v })}
               disabled={isSaving}
             >
@@ -175,21 +168,21 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="edit-height">Alto (cm)</Label>
-              <Input 
-                id="edit-height" 
-                type="number" 
-                value={form.height} 
-                onChange={(e) => setForm({ ...form, height: e.target.value })} 
+              <Input
+                id="edit-height"
+                type="number"
+                value={form.height}
+                onChange={(e) => setForm({ ...form, height: e.target.value })}
                 disabled={isSaving}
               />
             </div>
             <div>
               <Label htmlFor="edit-width">Ancho (cm)</Label>
-              <Input 
-                id="edit-width" 
-                type="number" 
-                value={form.width} 
-                onChange={(e) => setForm({ ...form, width: e.target.value })} 
+              <Input
+                id="edit-width"
+                type="number"
+                value={form.width}
+                onChange={(e) => setForm({ ...form, width: e.target.value })}
                 disabled={isSaving}
               />
             </div>
@@ -198,21 +191,21 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="edit-stock">Stock actual</Label>
-              <Input 
-                id="edit-stock" 
-                type="number" 
-                value={form.stock} 
-                onChange={(e) => setForm({ ...form, stock: e.target.value })} 
+              <Input
+                id="edit-stock"
+                type="number"
+                value={form.stock}
+                onChange={(e) => setForm({ ...form, stock: e.target.value })}
                 disabled={isSaving}
               />
             </div>
             <div>
               <Label htmlFor="edit-minStock">Stock mínimo</Label>
-              <Input 
-                id="edit-minStock" 
-                type="number" 
-                value={form.minStock} 
-                onChange={(e) => setForm({ ...form, minStock: e.target.value })} 
+              <Input
+                id="edit-minStock"
+                type="number"
+                value={form.minStock}
+                onChange={(e) => setForm({ ...form, minStock: e.target.value })}
                 disabled={isSaving}
               />
             </div>
@@ -220,12 +213,12 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
 
           <div>
             <Label htmlFor="edit-price">Precio unitario (MXN)</Label>
-            <Input 
-              id="edit-price" 
-              type="number" 
-              step="0.01" 
-              value={form.unitPrice} 
-              onChange={(e) => setForm({ ...form, unitPrice: e.target.value })} 
+            <Input
+              id="edit-price"
+              type="number"
+              step="0.01"
+              value={form.unitPrice}
+              onChange={(e) => setForm({ ...form, unitPrice: e.target.value })}
               disabled={isSaving}
             />
           </div>
@@ -236,8 +229,8 @@ const EditProductModal = ({ product, open, categories, onClose, onSave }: EditPr
             <X className="h-4 w-4 mr-2" />
             Cancelar
           </Button>
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             className="bg-accent hover:bg-accent/90 text-accent-foreground"
             disabled={isSaving}
           >

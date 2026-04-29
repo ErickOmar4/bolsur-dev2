@@ -1,5 +1,6 @@
 // controllers/productController.js
 import pool from '../config/db.js';
+import { revisarStockProducto } from '../services/cronService.js';
 
 // Obtiene productos activos que tengan existencia en stock
 export const getProductosDisponibles = async (req, res) => {
@@ -11,7 +12,6 @@ export const getProductosDisponibles = async (req, res) => {
       ORDER BY nombre ASC
     `;
     const result = await pool.query(query);
-    
     res.json(result.rows);
   } catch (err) {
     console.error("Error en DB:", err);
@@ -39,17 +39,11 @@ export const getInventarioCompleto = async (req, res) => {
       WHERE p.activo = true
       ORDER BY p.nombre ASC
     `;
-    
     const result = await pool.query(query);
 
-    // Formateo de dimensiones para compatibilidad con el frontend
     const products = result.rows.map(row => ({
       ...row,
-      dimensions: {
-        height: row.height,
-        width: row.width,
-        unit: 'cm'
-      }
+      dimensions: { height: row.height, width: row.width, unit: 'cm' }
     }));
 
     res.json(products);
@@ -62,21 +56,15 @@ export const getInventarioCompleto = async (req, res) => {
 // Realiza un borrado lógico del producto
 export const desactivarProducto = async (req, res) => {
   const { id } = req.params;
-
   try {
     const result = await pool.query(
       "UPDATE bolsur_dbnormal.productos SET activo = false, updated_at = NOW() WHERE id = $1 RETURNING nombre",
       [id]
     );
-
     if (result.rowCount === 0) {
       return res.status(404).json({ error: "Producto no encontrado" });
     }
-
-    res.json({ 
-      success: true, 
-      message: `Producto "${result.rows[0].nombre}" desactivado correctamente` 
-    });
+    res.json({ success: true, message: `Producto "${result.rows[0].nombre}" desactivado correctamente` });
   } catch (error) {
     console.error("Error al desactivar producto:", error);
     res.status(500).json({ error: "Error interno del servidor" });
@@ -92,11 +80,8 @@ export const crearProducto = async (req, res) => {
       "SELECT id FROM bolsur_dbnormal.productos WHERE UPPER(nombre) = UPPER($1) AND activo = true",
       [name]
     );
-
     if (existe.rows.length > 0) {
-      return res.status(409).json({ 
-        error: `El producto "${name}" ya existe en el inventario.` 
-      });
+      return res.status(409).json({ error: `El producto "${name}" ya existe en el inventario.` });
     }
 
     const query = `
@@ -105,9 +90,14 @@ export const crearProducto = async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW(), NOW())
       RETURNING id, nombre AS name;
     `;
-
     const values = [name, category_id, unitPrice, stock, minStock, height, width, description];
     const result = await pool.query(query, values);
+
+    const nuevoId = result.rows[0].id;
+
+    // FIX: revisar stock inmediatamente al crear (sin esperar el cron)
+    // Se hace async sin await para no bloquear la respuesta HTTP
+    revisarStockProducto(nuevoId).catch(console.error);
 
     res.status(201).json({
       success: true,
@@ -127,16 +117,12 @@ export const actualizarProducto = async (req, res) => {
   const { name, unitPrice, stock, minStock, height, width, description } = req.body;
 
   try {
-    // Valida que el nuevo nombre no sea utilizado por otro producto activo
     const existe = await pool.query(
       "SELECT id FROM bolsur_dbnormal.productos WHERE UPPER(nombre) = UPPER($1) AND id <> $2 AND activo = true",
       [name, id]
     );
-
     if (existe.rows.length > 0) {
-      return res.status(409).json({ 
-        error: "Ya existe otro producto con este nombre." 
-      });
+      return res.status(409).json({ error: "Ya existe otro producto con este nombre." });
     }
 
     const query = `
@@ -146,12 +132,14 @@ export const actualizarProducto = async (req, res) => {
       WHERE id = $8
       RETURNING *;
     `;
-    
     const result = await pool.query(query, [name, unitPrice, stock, minStock, height, width, description, id]);
 
     if (result.rowCount === 0) {
       return res.status(404).json({ error: "Producto no encontrado" });
     }
+
+    // FIX: revisar stock inmediatamente al actualizar (sin esperar el cron)
+    revisarStockProducto(parseInt(id)).catch(console.error);
 
     res.json({ success: true, message: "Actualizado correctamente" });
 

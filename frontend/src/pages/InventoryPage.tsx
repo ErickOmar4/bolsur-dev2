@@ -40,9 +40,9 @@ const getStockStatus = (stock: number, minStock: number): StockStatus => {
 };
 
 const statusConfig: Record<StockStatus, { label: string; className: string }> = {
-  ok: { label: "Stock OK", className: "bg-accent/15 text-accent border-accent/30" },
-  low: { label: "Bajo", className: "bg-[hsl(var(--status-pending)/0.15)] text-[hsl(var(--status-pending))] border-[hsl(var(--status-pending)/0.3)]" },
-  critical: { label: "Crítico", className: "bg-destructive/15 text-destructive border-destructive/30" },
+  ok:       { label: "Stock OK", className: "bg-accent/15 text-accent border-accent/30" },
+  low:      { label: "Bajo",     className: "bg-[hsl(var(--status-pending)/0.15)] text-[hsl(var(--status-pending))] border-[hsl(var(--status-pending)/0.3)]" },
+  critical: { label: "Crítico",  className: "bg-destructive/15 text-destructive border-destructive/30" },
 };
 
 const InventoryPage = () => {
@@ -53,7 +53,12 @@ const InventoryPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [stockFilter, setStockFilter] = useState<string>("all");
+
+  // FIX: separamos el producto seleccionado de la visibilidad del modal
+  // Así el modal SIEMPRE está montado y Radix puede limpiar su portal correctamente
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+
   const [showNewProduct, setShowNewProduct] = useState(false);
 
   useEffect(() => {
@@ -62,9 +67,8 @@ const InventoryPage = () => {
         setLoading(true);
         const [prodRes, catRes] = await Promise.all([
           authFetch("http://localhost:4000/api/productos/inventario"),
-          authFetch("http://localhost:4000/api/categorias")
+          authFetch("http://localhost:4000/api/categorias"),
         ]);
-
         if (prodRes.ok) setProducts(await prodRes.json());
         if (catRes.ok) setDbCategories(await catRes.json());
       } catch (error) {
@@ -76,10 +80,22 @@ const InventoryPage = () => {
     loadData();
   }, []);
 
-  // Estas funciones solo actualizan el estado visual después de que el Modal hizo el trabajo pesado
+  // Abre el modal: primero setea el producto, luego abre
+  const handleOpenEdit = (product: Product) => {
+    setEditingProduct(product);
+    setEditModalOpen(true);
+  };
+
+  // Cierra el modal: primero cierra, el producto se limpia después de la animación
+  const handleCloseEdit = () => {
+    setEditModalOpen(false);
+    // Pequeño delay para no limpiar el producto mientras el Dialog todavía anima el cierre
+    setTimeout(() => setEditingProduct(null), 200);
+  };
+
   const handleSaveProduct = (updated: Product) => {
     setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-    setEditingProduct(null);
+    handleCloseEdit();
   };
 
   const handleAddProduct = (product: Product) => {
@@ -89,12 +105,10 @@ const InventoryPage = () => {
 
   const handleDeleteProduct = async (id: number | string, name: string) => {
     if (!window.confirm(`¿Estás seguro de que deseas eliminar "${name}"?`)) return;
-
     try {
       const response = await authFetch(`http://localhost:4000/api/productos/${id}/desactivar`, {
         method: "PATCH",
       });
-
       if (response.ok) {
         setProducts((prev) => prev.filter((p) => Number(p.id) !== Number(id)));
         toast.success(`"${name}" eliminado correctamente`);
@@ -111,9 +125,8 @@ const InventoryPage = () => {
     let filtered = [...products];
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(p => 
-        p.name.toLowerCase().includes(query) || 
-        p.id.toString().includes(query)
+      filtered = filtered.filter(
+        (p) => p.name.toLowerCase().includes(query) || p.id.toString().includes(query)
       );
     }
     if (categoryFilter !== "all") {
@@ -214,9 +227,17 @@ const InventoryPage = () => {
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={8} className="text-center py-10"><Loader2 className="animate-spin mx-auto" /></TableCell></TableRow>
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-10">
+                    <Loader2 className="animate-spin mx-auto" />
+                  </TableCell>
+                </TableRow>
               ) : filteredProducts.length === 0 ? (
-                <TableRow><TableCell colSpan={8} className="text-center py-10">No se encontraron productos.</TableCell></TableRow>
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-10">
+                    No se encontraron productos.
+                  </TableCell>
+                </TableRow>
               ) : (
                 filteredProducts.map((product) => {
                   const status = getStockStatus(product.stock, product.minStock);
@@ -229,17 +250,23 @@ const InventoryPage = () => {
                       <TableCell className="text-center text-sm">
                         {product.dimensions ? `${product.dimensions.height}x${product.dimensions.width}` : "—"}
                       </TableCell>
-                      <TableCell className={cn("text-center font-bold", status !== 'ok' && "text-destructive")}>
+                      <TableCell className={cn("text-center font-bold", status !== "ok" && "text-destructive")}>
                         {product.stock}
                       </TableCell>
                       <TableCell className="text-right">{formatCurrency(product.unitPrice)}</TableCell>
                       <TableCell className="text-center">
-                        <Badge className={cn("text-[10px] uppercase", config.className)} variant="outline">{config.label}</Badge>
+                        <Badge className={cn("text-[10px] uppercase", config.className)} variant="outline">
+                          {config.label}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-center gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => setEditingProduct(product)}><Pencil className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteProduct(product.id, product.name)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(product)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteProduct(product.id, product.name)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -250,20 +277,24 @@ const InventoryPage = () => {
           </Table>
         </div>
 
-        {/* Modales - Corregido el paso de categorías como objeto */}
-        {editingProduct && (
-          <EditProductModal
-            product={editingProduct}
-            open={!!editingProduct}
-            categories={dbCategories} // Objeto completo: [{id, nombre}, ...]
-            onClose={() => setEditingProduct(null)}
-            onSave={handleSaveProduct}
-          />
-        )}
+        {/*
+          FIX removeChild crash:
+          EditProductModal SIEMPRE está montado en el DOM (sin condicional &&).
+          Radix Dialog necesita existir antes de que open=true para poder
+          manejar su portal correctamente. Antes se desmontaba con {editingProduct && ...}
+          mientras el portal todavía existía en el DOM, causando el crash.
+        */}
+        <EditProductModal
+          product={editingProduct}
+          open={editModalOpen}
+          categories={dbCategories}
+          onClose={handleCloseEdit}
+          onSave={handleSaveProduct}
+        />
 
         <NewProductModal
           open={showNewProduct}
-          categories={dbCategories} // Objeto completo
+          categories={dbCategories}
           onClose={() => setShowNewProduct(false)}
           onSave={handleAddProduct}
         />
